@@ -47,6 +47,7 @@ public:
     {
         static std::vector<ChatCommand> commandTable =
         {
+			
             { "additem",          rbac::RBAC_PERM_COMMAND_ADDITEM,          false, &HandleAddItemCommand,          "" },
             { "additemset",       rbac::RBAC_PERM_COMMAND_ADDITEMSET,       false, &HandleAddItemSetCommand,       "" },
             { "appear",           rbac::RBAC_PERM_COMMAND_APPEAR,           false, &HandleAppearCommand,           "" },
@@ -1226,6 +1227,9 @@ public:
 
         return true;
     }
+
+
+	
 
     static bool HandleAddItemSetCommand(ChatHandler* handler, char const* args)
     {

@@ -1124,13 +1124,13 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
     // Ensure that the character belongs to the current account, that rename at login is enabled
     // and that there is no character with the desired new name
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
-
+	//std::string name = "<Administrador> " + renameInfo.Name;
     stmt->setUInt32(0, renameInfo.Guid.GetCounter());
     stmt->setUInt32(1, GetAccountId());
     stmt->setUInt16(2, AT_LOGIN_RENAME);
     stmt->setUInt16(3, AT_LOGIN_RENAME);
-    stmt->setString(4, renameInfo.Name);
-
+   // stmt->setString(4, name);renameInfo.Name
+	stmt->setString(4, renameInfo.Name);
     delete _charRenameCallback.GetParam();
     _charRenameCallback.SetParam(new CharacterRenameInfo(std::move(renameInfo)));
     _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
@@ -1168,7 +1168,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult resu
     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] (%s) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), renameInfo->Guid.ToString().c_str(), renameInfo->Name.c_str());
 
     SendCharRename(RESPONSE_SUCCESS, *renameInfo);
-
+	//std::string resultado = "" + name  + ", " + renameInfo->Name + "";
     sWorld->UpdateCharacterInfo(renameInfo->Guid, renameInfo->Name);
 }
 

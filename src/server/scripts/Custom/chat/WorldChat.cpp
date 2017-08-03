@@ -19,15 +19,16 @@ void worldchat::iniciar()
 	if (sworldchat->iniciado)
 		return;
 	TC_LOG_INFO("server.loading", "Cargando configuraciones de WorldChat");
-	QueryResult rr = CharacterDatabase.PQuery("SELECT rango, rango_nombre, rango_color, chat_color FROM `worldchat_rango`");
+	QueryResult rr = CharacterDatabase.PQuery("SELECT *FROM `worldchat_rango`;");
 	while (Field *fr = rr->Fetch())
 	{
 		rRango[fr[0].GetInt8()] = fr[1].GetString();
 		rRangoColor[fr[0].GetInt8()] = fr[2].GetString();
 		rRangoColorChat[fr[0].GetInt8()] = fr[3].GetString();
+		rNombre[fr[0].GetInt8()] = fr[4].GetCString();
 		rr->NextRow();
 	}
-	QueryResult rc = CharacterDatabase.PQuery("SELECT clase, color FROM `worldchat_clase`");
+	QueryResult rc = CharacterDatabase.PQuery("SELECT clase, color FROM `worldchat_clase`;");
 	while (Field *fc = rc->Fetch())
 	{
 		rClaseColor[fc[0].GetInt8()] = fc[1].GetString();
@@ -37,6 +38,34 @@ void worldchat::iniciar()
 }
 
 
+void worldchat::addrev() {
+	Item_rev xitem;
+	if (sworldchat->iniciado1)
+		return;
+	QueryResult ix = CharacterDatabase.PQuery("SELECT count(*) FROM item_rev;");
+	Field *item = ix->Fetch();
+	if (item[0].GetInt8() == 0) {
+		sworldchat->iniciado1 = false;
+		return;
+	}
+
+	xitem.Scantidad(item[0].GetInt8());
+	int cantidad = sworldchat->items.cantidad;
+	TC_LOG_INFO("server.loading", "Cargando configuraciones de rev_item total de items %d", cantidad);
+
+	QueryResult Buscar = CharacterDatabase.PQuery("SELECT id,entry FROM item_rev;");
+	int i = 0;
+	while (Field *fz = Buscar->Fetch())
+	{
+		TC_LOG_INFO("server.loading", "Cargando configuraciones de rev_item items  entry %d", fz[1].GetInt8());
+		xitem.entry[i] = fz[1].GetInt8();
+		i++;
+		Buscar->NextRow();
+	}
+
+	sworldchat->items = xitem;
+	sworldchat->iniciado1 = true;
+}
 
 void worldchat::mensaje_db(uint32 account, std::string name, std::string  mensaje,std::string local)
 {
@@ -239,11 +268,179 @@ public:
 		static std::vector<ChatCommand> HandleWorldChatCommandTable =
 		{
 			{ "webchat",	rbac::RBAC_PERM_COMMAND_WORLDCHAT_WEB, false, NULL, "", HandleWorldChatCT },
+
 		};
 		return HandleWorldChatCommandTable;
 	}
 };
 
+
+class AddRev : public CommandScript
+{
+public:
+	AddRev() : CommandScript("AddRev") {	}
+
+	static bool HandleAddItemCommandrevreload(ChatHandler* handler, char const* args){
+		sworldchat->iniciado1 = false;
+		sworldchat->addrev();
+		handler->SendGlobalGMSysMessage("DB tables `Rev_Items*` reloaded.");
+		return true;
+	}
+
+	static bool HandleAddItemCommandrev(ChatHandler* handler, char const* args)
+	{
+		if (!*args)
+			return false;
+		uint32 cantidad = 0;
+	
+		
+		if(!sworldchat->iniciado1)
+			sworldchat->addrev();
+				
+
+		char* arg1 = strtok((char*)args, " ");  //acc
+		
+		if (!arg1)
+			return false;
+		
+
+		for (int i = 0; i < sworldchat->items.cantidad; i++)
+		{
+			if (sworldchat->items.entry[i] == atoi(arg1) ) {
+				cantidad = 1;
+			}
+		}
+
+		if(cantidad==1) {
+			uint32 itemId = 0;
+
+			if (args[0] == '[')                                        // [name] manual form
+			{
+				char const* itemNameStr = strtok((char*)args, "]");
+
+				if (itemNameStr && itemNameStr[0])
+				{
+					std::string itemName = itemNameStr + 1;
+					WorldDatabase.EscapeString(itemName);
+
+					PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
+					stmt->setString(0, itemName);
+					PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+					if (!result)
+					{
+						handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
+						handler->SetSentErrorMessage(true);
+						return false;
+					}
+					itemId = result->Fetch()->GetUInt32();
+				}
+				else
+					return false;
+			}
+			else                                                    // item_id or [name] Shift-click form |color|Hitem:item_id:0:0:0|h[name]|h|r
+			{
+				char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
+				if (!id)
+					return false;
+				itemId = atoul(id);
+			}
+
+			char const* ccount = strtok(NULL, " ");
+
+			int32 count = 1;
+
+			if (ccount)
+				count = strtol(ccount, NULL, 10);
+
+			if (count == 0)
+				count = 1;
+
+			Player* player = handler->GetSession()->GetPlayer();
+			Player* playerTarget = handler->getSelectedPlayer();
+			if (!playerTarget)
+				playerTarget = player;
+
+			TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_ADDITEM), itemId, count);
+
+			ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+			if (!itemTemplate)
+			{
+				handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+
+			// Subtract
+			if (count < 0)
+			{
+				playerTarget->DestroyItemCount(itemId, -count, true, false);
+				handler->PSendSysMessage(LANG_REMOVEITEM, itemId, -count, handler->GetNameLink(playerTarget).c_str());
+				return true;
+			}
+
+			// Adding items
+			uint32 noSpaceForCount = 0;
+
+			// check space and find places
+			ItemPosCountVec dest;
+			InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+			if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
+				count -= noSpaceForCount;
+
+			if (count == 0 || dest.empty())                         // can't add any
+			{
+				handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+				handler->SetSentErrorMessage(true);
+				return false;
+			}
+
+			Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+
+			// remove binding (let GM give it to another player later)
+			if (player == playerTarget)
+				for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
+					if (Item* item1 = player->GetItemByPos(itr->pos))
+						item1->SetBinding(false);
+
+			if (count > 0 && item)
+			{
+				player->SendNewItem(item, count, false, true);
+				if (player != playerTarget)
+					playerTarget->SendNewItem(item, count, true, false);
+			}
+
+			if (noSpaceForCount > 0)
+				handler->PSendSysMessage(LANG_ITEM_CANNOT_CREATE, itemId, noSpaceForCount);
+
+		}
+		else {
+			sWorld->SendGlobalText("Error Items no activo o no tienes permiso para usarlo", NULL);
+		}
+
+		return true;
+		
+	};
+
+
+	std::vector<ChatCommand> GetCommands() const override
+	{
+		
+		static std::vector<ChatCommand> HandleWorldAddRev =
+		{
+			{ "reload", rbac::RBAC_PERM_COMMAND_ADDITEM_REVRELOAD,      true, &HandleAddItemCommandrevreload, "" },
+			{ "",		rbac::RBAC_PERM_COMMAND_ADDITEM_REV,			true, &HandleAddItemCommandrev, "" },
+			
+		};
+		static std::vector<ChatCommand> HandleAddrevCommandTable =
+		{
+			{ "addrev",	rbac::RBAC_PERM_COMMAND_ADDITEM_REV, false, NULL, "", HandleWorldAddRev },
+
+		};
+		
+		return HandleAddrevCommandTable;
+	}
+};
 
 class Online_Announcer : public PlayerScript
 {
@@ -252,15 +449,34 @@ Online_Announcer() : PlayerScript("Online_Announcer") { }
 	void OnLogin(Player* player, bool /* firstLogin */)
 	{
 		string name = player->GetName();
-		string tt = "[Bienvenido!]|r: "+ name +", |cffff0000 Muchachos! ha llegado Carne Fresca!!!";
+		uint8 sec = player->GetSession()->GetSecurity();
+		if (sec > 0) {
+			sworldchat->iniciado = false;
+			sworldchat->iniciar();
+			string Rango = sworldchat->GRango(sec);
+			string RangoColor = sworldchat->GRangoColor(sec);
+			string NombreWoW = sworldchat->GNombre(sec);
+			string RangoColorChat = sworldchat->GRangoColorChat(sec);
+			ObjectGuid const& guid = player->GetGUID();
+			int id = player->GetSession()->GetAccountId();
+			uint8 gender = player->getGender();/*= GENDER_NONE*/
+			uint8 race = player->getRace(); /*= RACE_NONE*/
+			uint8 Pclass = player->getClass();
+			uint8 level = player->getLevel();
+			std::string NewName = " <" + Rango + " " + NombreWoW + "> " + name;
+			sWorld->AddCharacterInfo(guid, id, NewName, gender, race, Pclass, level);
+			//sWorld->UpdateCharacterInfo(guid, NewName, gender, race);
+		}
+		string tt = "[Bienvenido!]|r: "+ name +", |cffff0000 esperamos que pases un divertido rato!!! ";
 		sWorld->SendGlobalText(tt.c_str(), NULL);
+
 	}
 };
-
 
 void AddSC_World_Chat()
 {
         new World_Chat;
 		new Chat_Onli;
 		new Online_Announcer;
+		new AddRev;
 }

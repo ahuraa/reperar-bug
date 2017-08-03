@@ -721,6 +721,10 @@ enum RBACPermissions
 
 	//chat web
 	RBAC_PERM_COMMAND_WORLDCHAT_WEB                          = 1028,
+
+	//item rev
+	RBAC_PERM_COMMAND_ADDITEM_REV                            =1029,
+	RBAC_PERM_COMMAND_ADDITEM_REVRELOAD                      =1030,
  
 
     // custom permissions 1000+

@@ -249,7 +249,7 @@ public:
             msg += ": |cff00ccff";
             break;
             // GM
-        case SEC_GAMEMASTER:
+        case SEC_GM1:
             msg += "[|cff07D430World|r]";
             msg += "|cff00ffff[Moderador] ";
             msg += "|TINTERFACE/CHATFRAME/UI-CHATICON-BLIZZ:15|t";
