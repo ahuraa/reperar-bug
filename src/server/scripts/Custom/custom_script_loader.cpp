@@ -26,16 +26,17 @@ void AddSC_Npc_Enchants();
 void AddSC_Professions_NPC();
 void AddSC_Npc_Tools();
 //void AddSC_cs_world_chat();
-void AddSC_announce_login();
+//void AddSC_announce_login();
 
 void AddSC_World_Chat();
 void AddSC_System_Censure();
 void AddSC_Boss_Announcer();
 void AddSC_Beastmaster_NPC();
 void AddSC_SpellRegulator();
-void AddSC_npc_welcome();
+//void AddSC_npc_welcome();
 void AddSC_World_Boss();
-
+void AddSC_arena_spectator_script();
+void AddSC_LearnSpellsOnLevelUp();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -51,13 +52,15 @@ void AddCustomScripts()
 	AddSC_Professions_NPC();
 	AddSC_Npc_Tools();
 	//AddSC_cs_world_chat();
-	AddSC_announce_login();
+	//AddSC_announce_login();
 	
 	AddSC_World_Chat();
 	AddSC_System_Censure();
 	AddSC_Boss_Announcer();
 	AddSC_Beastmaster_NPC();
 	AddSC_SpellRegulator();
-	AddSC_npc_welcome();
+//	AddSC_npc_welcome();
 	AddSC_World_Boss();
+	AddSC_arena_spectator_script();
+	AddSC_LearnSpellsOnLevelUp();
 }

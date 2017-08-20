@@ -134,17 +134,17 @@ public:
 
 		void EnterCombat(Unit* /*who*/) override
 		{
-			events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 5 * IN_MILLISECONDS);
+			events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 10 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_FEL_FIREBALL, 5 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
-			events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+			events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20 * IN_MILLISECONDS, 35 * IN_MILLISECONDS));
 			events.ScheduleEvent(EVENT_NETHER_POWER, 40 * IN_MILLISECONDS);
-			events.ScheduleEvent(EVENT_LEGION_FLAME, 30 * IN_MILLISECONDS);
+			events.ScheduleEvent(EVENT_LEGION_FLAME, 50 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_SUMMONO_NETHER_PORTAL, 20 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_SUMMON_INFERNAL_ERUPTION, 80 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_PANIC, 20000);
 			events.ScheduleEvent(EVENT_FRENZY, 30000);
-			events.ScheduleEvent(EVENT_VENT, 20 * IN_MILLISECONDS);
+			events.ScheduleEvent(EVENT_VENT, 25 * IN_MILLISECONDS);
 			me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
 			events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
 		}

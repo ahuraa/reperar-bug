@@ -477,6 +477,6 @@ void AddSC_World_Chat()
 {
         new World_Chat;
 		new Chat_Onli;
-		new Online_Announcer;
+		//new Online_Announcer;
 		new AddRev;
 }
