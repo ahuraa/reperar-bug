@@ -464,7 +464,7 @@ Online_Announcer() : PlayerScript("Online_Announcer") { }
 			uint8 Pclass = player->getClass();
 			uint8 level = player->getLevel();
 			std::string NewName = " <" + Rango + " " + NombreWoW + "> " + name;
-			sWorld->AddCharacterInfo(guid, id, NewName, gender, race, Pclass, level);
+			//sWorld->AddCharacterInfo(guid, id, NewName, gender, race, Pclass, level);
 			//sWorld->UpdateCharacterInfo(guid, NewName, gender, race);
 		}
 		string tt = "[Bienvenido!]|r: "+ name +", |cffff0000 esperamos que pases un divertido rato!!! ";
