@@ -37,6 +37,13 @@ void AddSC_SpellRegulator();
 void AddSC_World_Boss();
 void AddSC_arena_spectator_script();
 void AddSC_LearnSpellsOnLevelUp();
+void AddSC_accontmounts();
+void AddSC_npc_blood_money();
+void AddSC_item_enchant_visuals();
+void AddSC_guildmaster();
+void AddSC_npc_arena_setup();
+void AddSC_npc_tic_tac_toe();
+void AddSC_Creature_Script();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -63,4 +70,11 @@ void AddCustomScripts()
 	AddSC_World_Boss();
 	AddSC_arena_spectator_script();
 	AddSC_LearnSpellsOnLevelUp();
+	AddSC_accontmounts();
+	AddSC_npc_blood_money();
+	AddSC_item_enchant_visuals();
+	AddSC_guildmaster();
+	AddSC_npc_arena_setup();
+	AddSC_npc_tic_tac_toe();
+	AddSC_Creature_Script();
 }
