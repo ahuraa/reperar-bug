@@ -482,6 +482,45 @@ public:
     };
 };
 
+
+
+/*######
+# npc_ishanah
+######*/
+
+#define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
+#define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
+
+class npc_ishanah : public CreatureScript
+{
+public:
+    npc_ishanah() : CreatureScript("npc_ishanah") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == GOSSIP_ACTION_INFO_DEF+1)
+            player->SEND_GOSSIP_MENU(9458, creature->GetGUID());
+        else if (action == GOSSIP_ACTION_INFO_DEF+2)
+            player->SEND_GOSSIP_MENU(9459, creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ISANAH_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+};
+
 void AddSC_shattrath_city()
 {
     new npc_raliq_the_drunk();
@@ -489,4 +528,5 @@ void AddSC_shattrath_city()
     new npc_shattrathflaskvendors();
     new npc_zephyr();
     new npc_kservant();
+	new npc_ishanah();
 }
