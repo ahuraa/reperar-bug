@@ -39,6 +39,8 @@ void AddSC_npc_arena_setup();
 void AddSC_npc_tic_tac_toe();
 void AddSC_Creature_Script();
 void AddSC_npc_promo();
+void AddSC_cs_promo();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
@@ -66,4 +68,5 @@ void AddCustomScripts()
 	AddSC_npc_tic_tac_toe();
 	AddSC_Creature_Script();
 	AddSC_npc_promo();
+	AddSC_cs_promo();
 }
