@@ -19,9 +19,6 @@
 void AddSC_Transmogrification();
 void AddSC_npc_1v1arena();
 void AddSC_NPC_TransmogDisplayVendor();
-void AddSC_telenpc();
-void AddSC_Npc_Enchants();
-void AddSC_Professions_NPC();
 void AddSC_Npc_Tools();
 void AddSC_World_Chat();
 void AddSC_System_Censure();
@@ -48,9 +45,6 @@ void AddCustomScripts()
     AddSC_Transmogrification();
 	AddSC_npc_1v1arena();
 	AddSC_NPC_TransmogDisplayVendor();
-	AddSC_telenpc();
-	AddSC_Npc_Enchants();
-	AddSC_Professions_NPC();
 	AddSC_Npc_Tools();	
 	AddSC_World_Chat();
 	AddSC_System_Censure();
